@@ -18,74 +18,63 @@
 #define TIME_STEP 64
 #define PI 3.1416
 
+enum{
+  GUN
+};
+
 double b1=0;  //posicion inicial en 0
 double b2=0; // Posicion incial en 0
 double b3=0;
 int times=0;
 int times2=0;
+int times3=0;
 int key;  // Variable para el teclado
 int a=1; //Variable modo automatico
 int m=0; //Variable modo Manual
-double a1, a2,a3;
+double a1, a2,a3,a4,a5;
 float Buzz = 0;
 int turn_left = 0;
 int turn_right = 0;
-double d1,d2;// Variables para el sensor de distancia
-double speed = 3;
+double d1,d2,d3;// Variables para el sensor de distancia
+double speed = 1;
 double null = 0;
+double dsvel = .3; //Velocidad del sensor del sensorgun
+double gunvel = .7; // Velocidad de la pistola
 
 
- void goRobot(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-  wb_motor_set_velocity(wheel_1, -speed);
-  wb_motor_set_velocity(wheel_2, speed);
-  wb_motor_set_velocity(wheel_3, null);
-
-  }
- void downRobot(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-  wb_motor_set_velocity(wheel_1,speed);
-  wb_motor_set_velocity(wheel_2,-speed);
-  wb_motor_set_velocity(wheel_3, null);
-  }
- void leftRobot(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-  wb_motor_set_velocity(wheel_1, -speed);
-  wb_motor_set_velocity(wheel_2, -speed);
-  wb_motor_set_velocity(wheel_3, 6.1);
-  }
- void rightRobot(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-  wb_motor_set_velocity(wheel_1, speed);
-  wb_motor_set_velocity(wheel_2, speed);
-  wb_motor_set_velocity(wheel_3, -6.1);
-  }
  void stopRobot(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
   wb_motor_set_velocity(wheel_1,null);
   wb_motor_set_velocity(wheel_2,null);
   wb_motor_set_velocity(wheel_3,null);
   }
- void turnRight(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-  wb_motor_set_velocity(wheel_1,-0.785398);
-  wb_motor_set_velocity(wheel_2,-0.785398);
-  wb_motor_set_velocity(wheel_3,-0.785398);
-  }
- void turnLeft(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-    wb_motor_set_velocity(wheel_1,0.785398);
-    wb_motor_set_velocity(wheel_2,0.785398);
-    wb_motor_set_velocity(wheel_3,0.785398);
-  }
  void goAuto(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-    wb_motor_set_velocity(wheel_1,-1);
-    wb_motor_set_velocity(wheel_2,1);
-    wb_motor_set_velocity(wheel_3,0);
+    wb_motor_set_velocity(wheel_1,-speed);
+    wb_motor_set_velocity(wheel_2,speed);
+    wb_motor_set_velocity(wheel_3,null);
+
   }
  void turnrAuto(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-    wb_motor_set_velocity(wheel_1,1);
-    wb_motor_set_velocity(wheel_2,1);
-    wb_motor_set_velocity(wheel_3,1);
+    wb_motor_set_velocity(wheel_1,speed);
+    wb_motor_set_velocity(wheel_2,speed);
+    wb_motor_set_velocity(wheel_3,speed);
   }
  void turnlAuto(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-    wb_motor_set_velocity(wheel_1,-1);
-    wb_motor_set_velocity(wheel_2,-1);
-    wb_motor_set_velocity(wheel_3,-1);
+    wb_motor_set_velocity(wheel_1,-speed);
+    wb_motor_set_velocity(wheel_2,-speed);
+    wb_motor_set_velocity(wheel_3,-speed);
   }
+ void gunMovement(WbDeviceTag gun) {
+
+   wb_motor_set_velocity(gun,null);
+ }
+ void sensorMovement(WbDeviceTag gunsensor) {
+   wb_motor_set_velocity(gunsensor,dsvel);
+ }
+ void moveTest(WbDeviceTag gunsensor,WbDeviceTag gun) {
+   wb_motor_set_velocity(gunsensor,null);
+   wb_motor_set_velocity(gun,null);
+
+ }
 
 
 int main(int argc, char **argv){
@@ -94,44 +83,81 @@ int main(int argc, char **argv){
   wb_keyboard_enable(TIME_STEP);
 
 
-
    WbDeviceTag wheel_1 = wb_robot_get_device("motor_1");
    WbDeviceTag wheel_2 = wb_robot_get_device("motor_2");
    WbDeviceTag wheel_3 = wb_robot_get_device("motor_3");
+   WbDeviceTag gunsensor = wb_robot_get_device("motor_4");
+   WbDeviceTag gun = wb_robot_get_device("motor_5");
 
    WbDeviceTag ps_1 = wb_robot_get_device("position_1");
    WbDeviceTag ps_2 = wb_robot_get_device("position_2");
    WbDeviceTag ps_3 = wb_robot_get_device("position_3");
+   WbDeviceTag ps_4 = wb_robot_get_device("position_4");
+   WbDeviceTag ps_5 = wb_robot_get_device("position_5");
 
    wb_motor_set_position(wheel_1,INFINITY);
    wb_motor_set_position(wheel_2,INFINITY);
    wb_motor_set_position(wheel_3,INFINITY);
+   wb_motor_set_position(gunsensor,INFINITY);
+   wb_motor_set_position(gun,INFINITY);
 
    wb_position_sensor_enable(ps_1, TIME_STEP);
    wb_position_sensor_enable(ps_2, TIME_STEP);
    wb_position_sensor_enable(ps_3, TIME_STEP);
+   wb_position_sensor_enable(ps_4, TIME_STEP);
+   wb_position_sensor_enable(ps_5, TIME_STEP);
 
    WbDeviceTag ds_r1 = wb_robot_get_device("distance_sensor1");
    WbDeviceTag ds_r2 = wb_robot_get_device("distance_sensor2");
+   WbDeviceTag ds_r3 = wb_robot_get_device("distance_sensor3");
 
    wb_distance_sensor_enable(ds_r1, TIME_STEP);
    wb_distance_sensor_enable(ds_r2, TIME_STEP);
+   wb_distance_sensor_enable(ds_r3, TIME_STEP);
 
-   d1=(wb_distance_sensor_get_value(ds_r1)*0.2)/65535;
-   d2=(wb_distance_sensor_get_value(ds_r2)*0.2)/65535;
+   d1=(wb_distance_sensor_get_value(ds_r1)*0.4)/255;
+   d2=(wb_distance_sensor_get_value(ds_r2)*0.4)/255;
+   d3=(wb_distance_sensor_get_value(ds_r3)*2)/1023;
+
+   void shoot() {
+     WbDeviceTag ds_r3 = wb_robot_get_device("distance_sensor3");
+     wb_distance_sensor_enable(ds_r3, TIME_STEP);
+     d3=(wb_distance_sensor_get_value(ds_r3)*2)/1023;
+
+     if (d3<= 2 && d3 >= 1.5 ) {
+        printf("Enemy: THA!\n");
+      }
+      else if (d3<= 1.4 && d3 >= 1.2 ) {
+        printf("Enemy: THATHA!\n");
+      }
+      else if (d3<= 1.1 && d3 >= 0.8 ) {
+        printf("Enemy: THATHATHA!\n");
+      }
+      else if (d3<= 0.8 && d3 >= 0.5 ){
+        printf("Enemy: THATHATHATHATHA!\n");
+      }
+
+
+   }
 
   void automatic(){
      WbDeviceTag ds_r1 = wb_robot_get_device("distance_sensor1");
      WbDeviceTag ds_r2 = wb_robot_get_device("distance_sensor2");
+     WbDeviceTag ds_r3 = wb_robot_get_device("distance_sensor3");
 
      wb_distance_sensor_enable(ds_r1, TIME_STEP);
      wb_distance_sensor_enable(ds_r2, TIME_STEP);
+     wb_distance_sensor_enable(ds_r3, TIME_STEP);
 
-     d1=(wb_distance_sensor_get_value(ds_r1)*0.2)/65535;
-     d2=(wb_distance_sensor_get_value(ds_r2)*0.2)/65535;
+     d1=(wb_distance_sensor_get_value(ds_r1)*0.4)/255;
+     d2=(wb_distance_sensor_get_value(ds_r2)*0.4)/255;
+     d3=(wb_distance_sensor_get_value(ds_r3)*2)/1023;
 
 
      goAuto( wheel_1, wheel_2, wheel_3);
+     sensorMovement(gunsensor);
+     gunMovement(gun);
+
 
      if (d1<= 0.17 && d1<d2){
        times++;
@@ -155,66 +181,33 @@ int main(int argc, char **argv){
      else{
      times2=0;
      }
+     if (d3<2){
+       a5=wb_position_sensor_get_value(ps_4);
+       times3++;
+       shoot();
+     }
+     if (times3 >=1){
+       stopRobot(wheel_1,wheel_2, wheel_3);
+       moveTest(gun,gunsensor);
+       wb_motor_set_position(gun,a5);
+       wb_motor_set_velocity(gun,1);
+       times3++;
+       //printf("Enemy: THA!\n");
+
+      //if (d3<= 2 && d3 >= 1.5 ) {
+        //  printf("Enemy: THA!n");
+        //}
+      //  else if (d3<= 1) {
+        //  printf("Enemy: THATHA!n" );
+        //}
+     }
+
+
+     else{
+       times3=0;
+     }
    }
-  void manual(){
 
-        if(key == WB_KEYBOARD_UP){
-          goRobot( wheel_1, wheel_2, wheel_3);
-
-
-        }
-        else if(key == WB_KEYBOARD_DOWN){
-          downRobot( wheel_1, wheel_2, wheel_3);
-
-        }
-        else if(key == WB_KEYBOARD_LEFT){
-          leftRobot(wheel_1,wheel_2,wheel_3);
-
-        }
-        else if(key == WB_KEYBOARD_RIGHT){
-          rightRobot(wheel_1,wheel_2,wheel_3);
-
-        }
-        else if(key == 'S' ){
-          Buzz = a1 + 0.785398; //.75 = 45 degrees to the left
-          turn_left = 1;
-        }
-
-        else if(turn_left == 1){
-
-          if(a1 <= Buzz){
-          turnLeft(wheel_1,wheel_2,wheel_3);
-        }
-        else{
-          stopRobot(wheel_1,wheel_2,wheel_3);
-
-          turn_left = 0;
-        }
-
-      }
-
-        else if(key == 'A' ){
-        Buzz = a1 - 0.785398; // 45 degrees to the right
-        turn_right = 1;
-
-        }
-         else if(turn_right == 1){
-
-          if(a1 >= Buzz){
-          turnRight(wheel_1,wheel_2,wheel_3);
-
-        }
-        else{
-          stopRobot(wheel_1,wheel_2,wheel_3);
-
-          turn_right = 0;
-        }
-
-        }
-        else{
-          stopRobot(wheel_1,wheel_2,wheel_3);
-        }
-   }
 
   while (wb_robot_step(TIME_STEP) != -1) {
 
@@ -248,31 +241,23 @@ int main(int argc, char **argv){
   linvel3=pos_final3*radio;
   linvel_rob=prom(linvel1,linvel2,linvel3);
 
-  key = wb_keyboard_get_key();
 
-  if(key == 'W'){
-    m = 1;
-    a = 0;
-    printf("Manual mode \n");
-  }
+
+  key = wb_keyboard_get_key();
 
    if (key == 'G'){
     m = 0;
     a = 1;
-   printf("Automatic mode \n");
+   printf("Automatic mode n");
 
   }
 
-  if(m == 1){
-  manual();
-}
   if(a == 1){
   automatic();
   }
 
 
-     printf("Wheel1:RW_RPM %f RPM\tWheel2:RW_RPM %f RPM\tWheel3:RW_RPM %f RPM\
-     tlinear_velocity %f \n",RPM_1,RPM_2,RPM_3,linvel_rob);
+
 
 
   };

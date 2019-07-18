@@ -2,8 +2,10 @@
 WorldInfo {
 }
 Viewpoint {
-  orientation -0.9291029820560764 0.3402358522705961 0.14493865448598378 0.8156432594235564
-  position 0.26525727448068526 0.6866614470202915 1.1485253484305145
+  orientation 0.8765739431052212 0.3873409077469004 0.28563113180248995 4.884404110342238
+  position -0.3936568933351119 3.165184347349927 0.7218777395909945
+  follow "robot"
+  followOrientation TRUE
 }
 TexturedBackground {
 }
@@ -11,9 +13,20 @@ TexturedBackgroundLight {
 }
 Floor {
 }
+OilBarrel {
+  translation 2.5421482915278797 0.20000000000001042 -0.246939687229485
+  height 0.39999999999999997
+  radius 0.2
+}
+OilBarrel {
+  translation -0.05528360196454929 0.049999999999999996 -1.0136477974775788
+  name "oil barrel(1)"
+  height 0.1
+  radius 0.2
+}
 DEF OMNI_WHEELS Robot {
-  translation 0.11934407823388321 0.05881073875464394 0.5678819502757613
-  rotation 0.004426166831515297 0.9999892988456587 0.0013458236688052578 2.1600653097120093
+  translation 0 0.05881073875464394 0
+  rotation 0 -1 0 4.057885020258748
   children [
     DEF SOLID1 Solid {
       children [
@@ -722,7 +735,7 @@ DEF OMNI_WHEELS Robot {
     }
     DEF BODY Transform {
       translation 0 0.03 0
-      rotation 0 0 1 4.712390306100425
+      rotation -9.589805795542642e-09 9.589793082194628e-09 -0.9999999999999999 1.5707950010791614
       scale 1 0.7 0.7
       children [
         Shape {
@@ -770,9 +783,126 @@ DEF OMNI_WHEELS Robot {
         }
       ]
     }
+    Transform {
+      children [
+        HingeJoint {
+          jointParameters HingeJointParameters {
+            axis 0 1 0
+            anchor 0 0.03 0
+          }
+          endPoint Solid {
+            translation 0 0.074 0
+            rotation 0 -1 0 0.5236003061004251
+            children [
+              DEF BaseGun Shape {
+                appearance PBRAppearance {
+                  baseColor 0.1803921568627451 0.20392156862745098 0.21176470588235294
+                  roughness 1
+                  metalness 0
+                }
+                geometry Cylinder {
+                  height 0.15000000000000002
+                  radius 0.03
+                }
+              }
+            ]
+            name "solid(1)"
+            boundingObject USE BaseGun
+          }
+        }
+        HingeJoint {
+          jointParameters HingeJointParameters {
+            axis 0 1 0
+          }
+          device [
+            RotationalMotor {
+              name "motor_4"
+            }
+            PositionSensor {
+              name "position_4"
+            }
+          ]
+          endPoint Solid {
+            translation 0.043 0.12000000000000001 0.023
+            rotation 0 -1 0 0.5235996938995751
+            children [
+              DEF box Shape {
+                appearance PBRAppearance {
+                  baseColor 0.8 0 0
+                  roughness 1
+                  metalness 0
+                }
+                geometry Box {
+                  size 0.04 0.01 0.01
+                }
+              }
+              DistanceSensor {
+                translation 0.02 0 0
+                children [
+                  Shape {
+                    appearance PBRAppearance {
+                      baseColor 0.9607843137254902 0.4745098039215686 0
+                      roughness 1
+                      metalness 0
+                    }
+                    geometry Box {
+                      size 0.005 0.005 0.005
+                    }
+                  }
+                ]
+                name "distance_sensor3"
+                lookupTable [
+                  0 0 0
+                  0.1 0 0
+                  2 1023 0
+                ]
+                resolution 1
+              }
+            ]
+            name "solid(3)"
+            boundingObject USE box
+            physics Physics {
+            }
+          }
+        }
+        HingeJoint {
+          jointParameters HingeJointParameters {
+            axis 0 1 0
+          }
+          device [
+            RotationalMotor {
+              name "motor_5"
+            }
+            PositionSensor {
+              name "position_5"
+            }
+          ]
+          endPoint Solid {
+            translation 0.044 0.08 0.023
+            rotation 0 -1 0 0.5235996938995751
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  baseColor 0.7568627450980392 0.49019607843137253 0.06666666666666667
+                  roughness 1
+                  metalness 0
+                }
+                geometry Box {
+                  size 0.04 0.01 0.01
+                }
+              }
+            ]
+            name "solid(2)"
+            boundingObject USE box
+            physics Physics {
+            }
+          }
+        }
+      ]
+    }
     Solid {
-      translation 0.1 0.036 0.060000000000000005
-      rotation 0 1 0 -0.6544996938995746
+      translation 0.1 0.034999999999999996 0.060000000000000005
+      rotation 0 1 0 -0.5236003061004253
       children [
         Shape {
           appearance PBRAppearance {
@@ -792,7 +922,8 @@ DEF OMNI_WHEELS Robot {
       name "distance_sensor2"
       lookupTable [
         0 0 0
-        0.2 65535 0
+        0.05 0 0
+        0.4 255 0
       ]
       resolution 1
     }
@@ -802,7 +933,8 @@ DEF OMNI_WHEELS Robot {
       name "distance_sensor1"
       lookupTable [
         0 0 0
-        0.2 65535 0
+        0.05 0 0
+        0.4 255 0
       ]
       aperture 1.57
       resolution 1

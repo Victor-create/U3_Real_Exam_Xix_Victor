@@ -18,50 +18,38 @@
 #define TIME_STEP 64
 #define PI 3.1416
 
-enum{
-  GUN
-};
 
-double b1=0;  //posicion inicial en 0
-double b2=0; // Posicion incial en 0
-double b3=0;
 int times=0;
 int times2=0;
 int times3=0;
-int key;  // Variable para el teclado
-int a=1; //Variable modo automatico
-int m=0; //Variable modo Manual
-double a1, a2,a3,a4,a5;
-float Buzz = 0;
-int turn_left = 0;
-int turn_right = 0;
+double a;
 double d1,d2,d3;// Variables para el sensor de distancia
 double speed = 1;
 double null = 0;
 double dsvel = .3; //Velocidad del sensor del sensorgun
-double gunvel = .7; // Velocidad de la pistola
+
 
 
  void stopRobot(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-  wb_motor_set_velocity(wheel_1,null);
-  wb_motor_set_velocity(wheel_2,null);
-  wb_motor_set_velocity(wheel_3,null);
+   wb_motor_set_velocity(wheel_1,null);
+   wb_motor_set_velocity(wheel_2,null);
+   wb_motor_set_velocity(wheel_3,null);
   }
  void goAuto(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-    wb_motor_set_velocity(wheel_1,-speed);
-    wb_motor_set_velocity(wheel_2,speed);
-    wb_motor_set_velocity(wheel_3,null);
+   wb_motor_set_velocity(wheel_1,-speed);
+   wb_motor_set_velocity(wheel_2,speed);
+   wb_motor_set_velocity(wheel_3,null);
 
   }
  void turnrAuto(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-    wb_motor_set_velocity(wheel_1,speed);
-    wb_motor_set_velocity(wheel_2,speed);
-    wb_motor_set_velocity(wheel_3,speed);
+   wb_motor_set_velocity(wheel_1,speed);
+   wb_motor_set_velocity(wheel_2,speed);
+   wb_motor_set_velocity(wheel_3,speed);
   }
  void turnlAuto(WbDeviceTag wheel_1,WbDeviceTag wheel_2,WbDeviceTag wheel_3){
-    wb_motor_set_velocity(wheel_1,-speed);
-    wb_motor_set_velocity(wheel_2,-speed);
-    wb_motor_set_velocity(wheel_3,-speed);
+   wb_motor_set_velocity(wheel_1,-speed);
+   wb_motor_set_velocity(wheel_2,-speed);
+   wb_motor_set_velocity(wheel_3,-speed);
   }
  void gunMovement(WbDeviceTag gun) {
 
@@ -70,7 +58,7 @@ double gunvel = .7; // Velocidad de la pistola
  void sensorMovement(WbDeviceTag gunsensor) {
    wb_motor_set_velocity(gunsensor,dsvel);
  }
- void moveTest(WbDeviceTag gunsensor,WbDeviceTag gun) {
+ void stopGuns(WbDeviceTag gunsensor,WbDeviceTag gun) {
    wb_motor_set_velocity(gunsensor,null);
    wb_motor_set_velocity(gun,null);
 
@@ -81,7 +69,6 @@ int main(int argc, char **argv){
   /* necessary to initialize webots stuff */
   wb_robot_init();
   wb_keyboard_enable(TIME_STEP);
-
 
    WbDeviceTag wheel_1 = wb_robot_get_device("motor_1");
    WbDeviceTag wheel_2 = wb_robot_get_device("motor_2");
@@ -120,9 +107,6 @@ int main(int argc, char **argv){
    d3=(wb_distance_sensor_get_value(ds_r3)*2)/1023;
 
    void shoot() {
-     WbDeviceTag ds_r3 = wb_robot_get_device("distance_sensor3");
-     wb_distance_sensor_enable(ds_r3, TIME_STEP);
-     d3=(wb_distance_sensor_get_value(ds_r3)*2)/1023;
 
      if (d3<= 2 && d3 >= 1.5 ) {
         printf("Enemy: THA!\n");
@@ -136,6 +120,33 @@ int main(int argc, char **argv){
       else if (d3<= 0.8 && d3 >= 0.5 ){
         printf("Enemy: THATHATHATHATHA!\n");
       }
+
+
+   }
+   void giroDerecha() {
+     if (d2<0.17 && d2<d1){
+       times2++;
+     }
+
+     if(times2 >=1 && times2<=58){
+     turnrAuto( wheel_1, wheel_2, wheel_3);
+     times2++;
+     }
+     else{
+     times2=0;
+     }
+   }
+   void giroIzquierda() {
+     if (d1<= 0.17 && d1<d2){
+       times++;
+     }
+     if (times>=1 && times<=58){
+     turnlAuto( wheel_1, wheel_2, wheel_3);
+     times++;
+     }
+     else {
+      times=0;
+     }
 
 
    }
@@ -153,55 +164,18 @@ int main(int argc, char **argv){
      d2=(wb_distance_sensor_get_value(ds_r2)*0.4)/255;
      d3=(wb_distance_sensor_get_value(ds_r3)*2)/1023;
 
-
-     goAuto( wheel_1, wheel_2, wheel_3);
-     sensorMovement(gunsensor);
-     gunMovement(gun);
-
-
-     if (d1<= 0.17 && d1<d2){
-       times++;
-     }
-     if (times>=1 && times<=58){
-     turnlAuto( wheel_1, wheel_2, wheel_3);
-     times++;
-     }
-     else {
-      times=0;
-     }
-
-     if (d2<0.17 && d2<d1){
-       times2++;
-     }
-
-     if(times2 >=1 && times2<=58){
-     turnrAuto( wheel_1, wheel_2, wheel_3);
-     times2++;
-     }
-     else{
-     times2=0;
-     }
      if (d3<2){
-       a5=wb_position_sensor_get_value(ps_4);
+       a=wb_position_sensor_get_value(ps_4);
        times3++;
        shoot();
      }
      if (times3 >=1){
        stopRobot(wheel_1,wheel_2, wheel_3);
-       moveTest(gun,gunsensor);
-       wb_motor_set_position(gun,a5);
-       wb_motor_set_velocity(gun,1);
+       stopGuns(gun,gunsensor);
+       wb_motor_set_position(gun,a);
+       wb_motor_set_velocity(gun,10);
        times3++;
-       //printf("Enemy: THA!\n");
-
-      //if (d3<= 2 && d3 >= 1.5 ) {
-        //  printf("Enemy: THA!n");
-        //}
-      //  else if (d3<= 1) {
-        //  printf("Enemy: THATHA!n" );
-        //}
      }
-
 
      else{
        times3=0;
@@ -211,54 +185,12 @@ int main(int argc, char **argv){
 
   while (wb_robot_step(TIME_STEP) != -1) {
 
-  double pos_final1, pos_final2,pos_final3; //posiciones finales
-  double RPM_1, RPM_2, RPM_3;
-
-  ////rueda 1//////////////
-  a1 = wb_position_sensor_get_value(ps_1);
-          pos_final1 = ((a1 - b1)*1)/0.064;  //0-064 es el time step en segundos
-          RPM_1= (pos_final1*60)/(2*PI);
-          b1 = a1;
-
-  //////rueda 2////////////
-  a2 = wb_position_sensor_get_value(ps_2);
-          pos_final2 = ((a2 - b2)*1)/0.064;
-          RPM_2= (pos_final2*60)/(2*PI);
-          b2 = a2;
-  //////rueda 3////////////
-  a3 = wb_position_sensor_get_value(ps_3);
-          pos_final3 = ((a3 - b3)*1)/0.064;
-          RPM_3= (pos_final3*60)/(2*PI);
-          b3 = a3;
-
-  /////////velocidad lineal del robot///////
-  float radio=0.06; //radio de la llanta
-  double linvel1, linvel2, linvel3;//velocidad lineal por llanta
-  double linvel_rob; //velocidad lineal del robot
-
-  linvel1=pos_final1*radio;
-  linvel2=pos_final2*radio;
-  linvel3=pos_final3*radio;
-  linvel_rob=prom(linvel1,linvel2,linvel3);
-
-
-
-  key = wb_keyboard_get_key();
-
-   if (key == 'G'){
-    m = 0;
-    a = 1;
-   printf("Automatic mode n");
-
-  }
-
-  if(a == 1){
-  automatic();
-  }
-
-
-
-
+    goAuto( wheel_1, wheel_2, wheel_3);
+    sensorMovement(gunsensor);
+    gunMovement(gun);
+    giroDerecha();
+    giroIzquierda();
+    automatic();
 
   };
 
